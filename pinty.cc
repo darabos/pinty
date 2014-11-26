@@ -41,15 +41,27 @@ Function<int(int)> f(int i) {
   return x;
 }
 
-int main(int argc, char** argv) {
-  int N = atoi(argv[2]);
-  std::cout << "N: " << N << "\n";
-  auto g = f(8);
-  std::cout << "result: " << g(N) << "\n";
-  std::cout << "saved: " << Dumpstr(g.Save()) << "\n";
+void usage(const char* program) {
+  std::cout << "To save f(N):\n  " << program << " save <N>\n";
+  std::cout << "To load and call a function:\n  " << program << " call <fn> <M>\n";
+  std::exit(64);
+}
 
-  auto h = Function<int(int)>::Load(Undumpstr(argv[1]));
-  std::cout << "loaded: " << Dumpstr(h.Save()) << "\n";
-  std::cout << "result: " << h(N) << "\n";
+int main(int argc, char** argv) {
+  if (argc <= 1) usage(argv[0]);
+  std::string mode(argv[1]);
+
+  if (mode == "save") {
+    if (argc <= 2) usage(argv[0]);
+    int N = atoi(argv[2]);
+    auto g = f(N);
+    std::cout << "f(" << N << "): " << Dumpstr(g.Save()) << "\n";
+  } else if (mode == "call") {
+    if (argc <= 3) usage(argv[0]);
+    auto fn = argv[2];
+    int M = atoi(argv[3]);
+    auto h = Function<int(int)>::Load(Undumpstr(fn));
+    std::cout << fn << "(" << M << "): " << h(M) << "\n";
+  } else usage(argv[0]);
   return 0;
 }
